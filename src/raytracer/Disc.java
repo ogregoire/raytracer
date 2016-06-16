@@ -6,10 +6,10 @@ public class Disc extends Geometry {
     private final Vector normal;
     private final double radius;
 
-    public Disc(double x, double y, double z, double nx, double ny, double nz, double radius) {
-        this.position = new Vector(x, y, z);
-        this.normal = new Vector(nx, ny, nz).normalize();
-        this.radius = radius;
+    public Disc(double x, double y, double z, double nx, double ny, double nz, double r) {
+        position = new Vector(x, y, z);
+        normal = new Vector(nx, ny, nz).normalize();
+        radius = r;
     }
 
     @Override
@@ -18,8 +18,8 @@ public class Disc extends Geometry {
         if (vd != 0.0) {
             double t = -normal.dot(outRay.origin.set(inRay.origin).sub(position)) / vd;
             if (t > 0.0) {
-                outRay.origin.set(inRay.direction).scale(t).add(inRay.origin);
-                if (outRay.direction.set(outRay.origin).sub(position).lengthSquared() < radius * radius) {
+                outRay.origin.set(inRay.direction).mul(t).add(inRay.origin);
+                if (Vector.distanceSq(outRay.origin, position) < radius * radius) {
                     outRay.direction.set(normal);
                     return true;
                 }

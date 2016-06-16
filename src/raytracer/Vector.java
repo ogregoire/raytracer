@@ -18,10 +18,6 @@ public class Vector {
         set(other);
     }
 
-    public double dot(Vector other) {
-        return x * other.x + y * other.y + z * other.z;
-    }
-
     public double lengthSquared() {
         return dot(this);
     }
@@ -41,19 +37,42 @@ public class Vector {
         return set(other.x, other.y, other.z);
     }
 
-    public Vector scale(double s) {
+    public Vector mul(double s) {
         return set(x * s, y * s, z * s);
     }
 
     public Vector sub(Vector other) {
-        return set(x - other.x, y - other.y, z - other.z);
+        return sub(other.x, other.y, other.z);
+    }
+
+    public Vector sub(double x, double y, double z) {
+        return set(this.x - x, this.y - y, this.z - z);
     }
 
     public Vector add(Vector other) {
-        return set(x + other.x, y + other.y, z + other.z);
+        return add(other.x, other.y, other.z);
+    }
+
+    public Vector add(double x, double y, double z) {
+        return set(this.x + x, this.y + y, this.z + z);
+    }
+
+    public double dot(Vector other) {
+        return dot(other.x, other.y, other.z);
+    }
+
+    public double dot(double x, double y, double z) {
+        return this.x * x + this.y * y + this.z * z;
     }
 
     public Vector normalize() {
-        return scale(1.0 / length());
+        return mul(1.0 / length());
+    }
+
+    public static double distanceSq(Vector a, Vector b) {
+        double x = a.x - b.x;
+        double y = a.y - b.y;
+        double z = a.z - b.z;
+        return x * x + y * y + z * z;
     }
 }

@@ -60,7 +60,7 @@ public class Scene {
         Ray inRay = new Ray();
         Ray outRay = new Ray();
         inRay.direction.set(toLight).normalize();
-        inRay.origin.set(inRay.direction).scale(Tracer.TOLERANCE).add(hitPoint);
+        inRay.origin.set(inRay.direction).mul(Tracer.TOLERANCE).add(hitPoint);
         double distanceSquared = toLight.lengthSquared();
         for (Geometry primitive : primitives) {
             if (primitive.intersect(inRay, outRay)) {
@@ -119,8 +119,8 @@ public class Scene {
             diffuseColorAlt = diffuseColor2;
         }
 
-        public Color computeDiffuse(Ray hitRay) {
-            return (Math.floor(hitRay.origin.z * 0.025) + Math.floor(hitRay.origin.x * 0.025)) % 2 != 0 ? diffuseColor : diffuseColorAlt;
+        public Color computeDiffuse(Ray r) {
+            return (Math.floor(r.origin.z * 0.025) + Math.floor(r.origin.x * 0.025)) % 2 != 0 ? diffuse : diffuseColorAlt;
         }
     }
 }

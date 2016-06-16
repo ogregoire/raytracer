@@ -10,13 +10,13 @@ public class Ray {
         direction = new Vector();
     }
 
-    public Ray set(Vector origin, Vector direction) {
-        this.origin.set(origin);
-        this.direction.set(direction);
+    public Ray set(Vector o, Vector d) {
+        origin.set(o);
+        direction.set(d);
         return this;
     }
 
-    public Ray set(Ray other) {
-        return set(other.origin, other.direction);
+    public Ray set(Ray r) {
+        return set(r.origin, r.direction);
     }
 }

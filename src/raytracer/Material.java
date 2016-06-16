@@ -2,31 +2,33 @@ package raytracer;
 
 public class Material {
 
-    public final Color ambientColor;
-    public final Color diffuseColor;
-    public final Color specularColor;
+    public static final Material DEFAULT = new Material(Color.WHITE, Color.WHITE, Color.WHITE);
+
+    public final Color ambient;
+    public final Color diffuse;
+    public final Color specular;
     public final double glossiness;
 
-    public Material(Color ambientColor, Color diffuseColor, Color specularColor) {
-        this(ambientColor, diffuseColor, specularColor, 24.0);
+    public Material(Color ka, Color kd, Color ks) {
+        this(ka, kd, ks, 24.0);
     }
 
-    public Material(Color ambientColor, Color diffuseColor, Color specularColor, double glossiness) {
-        this.ambientColor = ambientColor;
-        this.diffuseColor = diffuseColor;
-        this.specularColor = specularColor;
-        this.glossiness = glossiness;
+    public Material(Color ka, Color kd, Color ks, double nr) {
+        ambient = ka;
+        diffuse = kd;
+        specular = ks;
+        glossiness = nr;
     }
 
-    public Color computeDiffuse(Ray hitRay) {
-        return diffuseColor;
+    public Color computeDiffuse(Ray r) {
+        return diffuse;
     }
 
-    public Color computeSpecular(Ray hitRay) {
-        return specularColor;
+    public Color computeSpecular(Ray r) {
+        return specular;
     }
 
-    public double computeGlossiness(Ray hitRay) {
+    public double computeGlossiness(Ray r) {
         return glossiness;
     }
 }

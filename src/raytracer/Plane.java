@@ -5,9 +5,9 @@ public class Plane extends Geometry {
     private final Vector normal;
     private final double distance;
 
-    public Plane(double nx, double ny, double nz, double distance) {
-        this.normal = new Vector(nx, ny, nz).normalize();
-        this.distance = distance;
+    public Plane(double a, double b, double c, double d) {
+        normal = new Vector(a, b, c).normalize();
+        distance = d;
     }
 
     @Override
@@ -16,7 +16,7 @@ public class Plane extends Geometry {
         if (vd != 0.0) {
             double t = (distance - normal.dot(inRay.origin)) / vd;
             if (t > 0.0) {
-                outRay.origin.set(inRay.direction).scale(t).add(inRay.origin);
+                outRay.origin.set(inRay.direction).mul(t).add(inRay.origin);
                 outRay.direction.set(normal);
                 return true;
             }

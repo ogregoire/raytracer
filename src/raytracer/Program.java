@@ -13,15 +13,14 @@ public class Program {
     }
 
     private void run() {
-        Controller controller = new Controller(new Viewer(480, 272), new Scene());
-        Thread tick = new Thread(() -> {
-            alive = true;
-            while (alive) {
-                controller.step();
-            }
-        });
-
         java.awt.EventQueue.invokeLater(() -> {
+            Controller controller = new Controller(new Viewer(480, 272), new Scene());
+            Thread tick = new Thread(() -> {
+                alive = true;
+                while (alive) {
+                    controller.step();
+                }
+            });
             JFrame frame = new JFrame();
             frame.setResizable(false);
             frame.setTitle("Ray Tracer");
@@ -33,8 +32,8 @@ public class Program {
             frame.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
-                    super.windowClosing(e);
                     alive = false;
+                    super.windowClosing(e);
                 }
             });
             tick.start();

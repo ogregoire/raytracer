@@ -16,7 +16,7 @@ public class Box extends Geometry {
         double tFar = Double.MAX_VALUE;
 
         // Deal with the X pair of planes...
-        if (inRay.direction.x == 0) {
+        if (inRay.direction.x == 0.0) {
             if (inRay.origin.x < minimum.x || inRay.origin.x > maximum.x) {
                 return false;
             }
@@ -33,13 +33,13 @@ public class Box extends Geometry {
                 tFar = (t1 < tFar) ? t1 : tFar;
             }
 
-            if (tNear > tFar || tFar < 0) {
+            if (tNear > tFar || tFar < 0.0) {
                 return false;
             }
         }
 
         // Deal with the Y pair of planes...
-        if (inRay.direction.y == 0) {
+        if (inRay.direction.y == 0.0) {
             if (inRay.origin.y < minimum.y || inRay.origin.y > maximum.y) {
                 return false;
             }
@@ -56,13 +56,13 @@ public class Box extends Geometry {
                 tFar = (t1 < tFar) ? t1 : tFar;
             }
 
-            if (tNear > tFar || tFar < 0) {
+            if (tNear > tFar || tFar < 0.0) {
                 return false;
             }
         }
 
         // Deal with the Z pair of planes...
-        if (inRay.direction.z == 0) {
+        if (inRay.direction.z == 0.0) {
             if (inRay.origin.z < minimum.z || inRay.origin.z > maximum.z) {
                 return false;
             }
@@ -79,13 +79,13 @@ public class Box extends Geometry {
                 tFar = (t1 < tFar) ? t1 : tFar;
             }
 
-            if (tNear > tFar || tFar < 0) {
+            if (tNear > tFar || tFar < 0.0) {
                 return false;
             }
         }
 
         // Survived all tests...
-        outRay.origin.set(inRay.direction).scale(tNear).add(inRay.origin);
+        outRay.origin.set(inRay.direction).mul(tNear).add(inRay.origin);
 
         if (outRay.origin.x <= (minimum.x + Tracer.TOLERANCE)) {
             outRay.direction.set(-1.0, 0.0, 0.0);

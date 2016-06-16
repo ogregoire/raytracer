@@ -2,27 +2,24 @@ package raytracer;
 
 public class Camera {
 
-    private Matrix transform1;
-    private Matrix transform2;
     public final double distance;
     public final double fov;
+    private Matrix transform;
 
     public Camera(double distance, double fov) {
-        this.transform1 = new Matrix();
-        this.transform2 = new Matrix();
         this.distance = distance;
         this.fov = fov;
+        transform = new Matrix();
     }
 
     public Vector transform(Vector v) {
-        return v.set(v.x * transform1.e00 + v.y * transform1.e10 + v.z * transform1.e20,
-                     v.x * transform1.e01 + v.y * transform1.e11 + v.z * transform1.e21,
-                     v.x * transform1.e02 + v.y * transform1.e12 + v.z * transform1.e22);
+        double x = v.x * transform.e00 + v.y * transform.e10 + v.z * transform.e20;
+        double y = v.x * transform.e01 + v.y * transform.e11 + v.z * transform.e21;
+        double z = v.x * transform.e02 + v.y * transform.e12 + v.z * transform.e22;
+        return v.set(x, y, z);
     }
 
     public void rotate(double aboutX, double aboutY) {
-        transform1.rotationAboutX(aboutX);
-        transform2.rotationAboutY(aboutY);
-        transform1.concatenate(transform1, transform2);
+        transform.rotationAboutX(aboutX).concatenate(transform, new Matrix().rotationAboutY(aboutY));
     }
 }

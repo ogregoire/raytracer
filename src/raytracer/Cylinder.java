@@ -6,10 +6,10 @@ public class Cylinder extends Geometry {
     private final double radius;
     private final double height;
 
-    public Cylinder(double x, double y, double z, double radius, double height) {
-        this.position = new Vector(x, y, z);
-        this.radius = radius;
-        this.height = height;
+    public Cylinder(double x, double y, double z, double r, double h) {
+        position = new Vector(x, y, z);
+        radius = r;
+        height = h;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class Cylinder extends Geometry {
                 }
 
                 if (intersects) {
-                    outRay.origin.set(inRay.direction).scale(t).add(inRay.origin);
+                    outRay.origin.set(inRay.direction).mul(t).add(inRay.origin);
                     double x = outRay.origin.x - position.x;
                     double z = outRay.origin.z - position.z;
                     double scaler = 1.0 / Math.sqrt(x * x + z * z);

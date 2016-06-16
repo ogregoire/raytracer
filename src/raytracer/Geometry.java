@@ -5,15 +5,15 @@ public abstract class Geometry {
     private Material material;
 
     protected Geometry() {
-        setMaterial(new Material(Color.WHITE, Color.WHITE, Color.WHITE));
+        setMaterial(Material.DEFAULT);
     }
 
     public Material getMaterial() {
         return material;
     }
 
-    public void setMaterial(Material value) {
-        material = value;
+    public void setMaterial(Material m) {
+        material = (m != null) ? m : Material.DEFAULT;
     }
 
     public abstract boolean intersect(Ray inRay, Ray outRay);

@@ -12,7 +12,6 @@ public class Tracer {
 
     private static final int MAX_RECURSION = 4;
     private static final double REFLECTIVITY = 0.10;
-    private static final double ONE_OVER_256 = 1.0 / 256.0;
 
     private final ExecutorService executor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     private final List<Callable<Object>> todo = new ArrayList<>();
@@ -34,9 +33,9 @@ public class Tracer {
         for (int y = 0; y < height; y++) {
             int finalY = y;
             todo.add(Executors.callable(() -> {
-                int offset = finalY * width;
                 Ray ray = new Ray();
-                camera.transform(ray.origin.set(0.0, 0.0, 1.0)).scale(-camera.distance);
+                int offset = finalY * width;
+                camera.transform(ray.origin.set(0.0, 0.0, 1.0)).mul(-camera.distance);
                 for (int wx = -xStart; wx < xStart; wx++) {
                     camera.transform(ray.direction.set(wx, yStart - finalY, camera.fov)).normalize();
                     pixels[offset++] = traceRay(scene, ray, 0);
@@ -56,17 +55,11 @@ public class Tracer {
         Geometry intersected = scene.intersect(ray, hitRay);
 
         if (intersected != null) {
-            double kdColorr = 0.0;
-            double kdColorg = 0.0;
-            double kdColorb = 0.0;
-            double krColorr = 0.0;
-            double krColorg = 0.0;
-            double krColorb = 0.0;
-            double ksColorr = 0.0;
-            double ksColorg = 0.0;
-            double ksColorb = 0.0;
-
             Material material = intersected.getMaterial();
+
+            Vector kd = new Vector();
+            Vector ks = new Vector();
+            Vector kr = new Vector();
 
             for (Light light : scene.lights) {
                 Vector toLight = new Vector(light.position).sub(hitRay.origin);
@@ -79,42 +72,48 @@ public class Tracer {
                     if (intensity > 0.0) {
                         intensity *= 1.0 - REFLECTIVITY;
 
-                        Color color = material.computeDiffuse(hitRay);
-                        kdColorr += intensity * color.r * light.color.r;
-                        kdColorg += intensity * color.g * light.color.g;
-                        kdColorb += intensity * color.b * light.color.b;
+                        Color diff = material.computeDiffuse(hitRay);
+                        kd.add(intensity * diff.red * light.color.red,
+                               intensity * diff.grn * light.color.grn,
+                               intensity * diff.blu * light.color.blu);
 
-                        double specular = new Vector(ray.origin).sub(hitRay.origin)
-                                                                .normalize()
-                                                                .add(toLight)
-                                                                .normalize()
-                                                                .dot(hitRay.direction);
+                        double specular = specularity(ray, hitRay, toLight);
                         if (specular > 0.0) {
-                            color = material.computeSpecular(hitRay);
                             specular = Math.pow(Math.min(specular, 1.0), material.computeGlossiness(hitRay));
-                            ksColorr += specular * color.r * light.color.r;
-                            ksColorg += specular * color.g * light.color.g;
-                            ksColorb += specular * color.b * light.color.b;
+                            Color spec = material.computeSpecular(hitRay);
+                            ks.add(specular * spec.red * light.color.red,
+                                   specular * spec.grn * light.color.grn,
+                                   specular * spec.blu * light.color.blu);
                         }
                     }
                 }
             }
 
-            if (++level <= MAX_RECURSION) {
+            if (level <= MAX_RECURSION) {
                 Ray result = new Ray();
-                result.direction.set(hitRay.direction).scale(-2.0 * ray.direction.dot(hitRay.direction)).add(ray.direction);
-                result.origin.set(result.direction).scale(TOLERANCE).add(hitRay.origin);
-                int color = traceRay(scene, result, level);
-                krColorr += REFLECTIVITY * ONE_OVER_256 * (0xFF & color >> 16);
-                krColorg += REFLECTIVITY * ONE_OVER_256 * (0xFF & color >> 8);
-                krColorb += REFLECTIVITY * ONE_OVER_256 * (0xFF & color);
+                result.direction.set(hitRay.direction).mul(-2.0 * ray.direction.dot(hitRay.direction)).add(ray.direction);
+                result.origin.set(result.direction).mul(TOLERANCE).add(hitRay.origin);
+                Color color = new Color(traceRay(scene, result, level + 1));
+                kr.add(REFLECTIVITY * color.red, REFLECTIVITY * color.grn, REFLECTIVITY * color.blu);
             }
 
-            return shade(scene.ambient.r * material.ambientColor.r + kdColorr + ksColorr + krColorr, 0x10) |
-                   shade(scene.ambient.g * material.ambientColor.g + kdColorg + ksColorg + krColorg, 0x08) |
-                   shade(scene.ambient.b * material.ambientColor.b + kdColorb + ksColorb + krColorb, 0x00);
+            return shade(scene.ambient.red * material.ambient.red + kd.x + ks.x + kr.x, 0x10) |
+                   shade(scene.ambient.grn * material.ambient.grn + kd.y + ks.y + kr.y, 0x08) |
+                   shade(scene.ambient.blu * material.ambient.blu + kd.z + ks.z + kr.z, 0x00);
         }
         return 0x000000;
+    }
+
+    private static double specularity(Ray ray, Ray hitRay, Vector toLight) {
+        double vx = ray.origin.x - hitRay.origin.x;
+        double vy = ray.origin.y - hitRay.origin.y;
+        double vz = ray.origin.z - hitRay.origin.z;
+        double ol = Math.sqrt(vx * vx + vy * vy + vz * vz);
+        vx += toLight.x * ol;
+        vy += toLight.y * ol;
+        vz += toLight.z * ol;
+        double d = vx * hitRay.direction.x + vy * hitRay.direction.y + vz * hitRay.direction.z;
+        return d > 0.0 ? d / Math.sqrt(vx * vx + vy * vy + vz * vz) : 0.0;
     }
 
     private static int shade(double v, int shift) {
